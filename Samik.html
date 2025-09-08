@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>For You ❤️</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb') no-repeat center center/cover;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom right, rgba(255, 182, 193, 0.3), rgba(255, 105, 180, 0.3));
+      z-index: 0;
+    }
+
+    .container {
+      text-align: center;
+      color: white;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+      z-index: 1;
+      animation: fadeIn 2s ease-out;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #ff99cc, 0 0 20px #ff66b2; }
+      to { text-shadow: 0 0 20px #ff3399, 0 0 30px #ff6699; }
+    }
+
+    .buttons {
+      margin-top: 20px;
+      position: relative;
+    }
+
+    button {
+      padding: 14px 30px;
+      font-size: 1.3rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+
+    #yesBtn {
+      background: linear-gradient(135deg, #ff66b2, #ff3399);
+      color: white;
+      margin-right: 15px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+      animation: bounce 1.5s infinite;
+    }
+
+    #yesBtn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px #ff99cc;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    #noBtn {
+      background: #333;
+      color: white;
+      position: fixed;
+      z-index: 3;
+      transition: all 0.3s ease;
+    }
+
+    #message {
+      display: none;
+      margin-top: 30px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      white-space: pre-wrap;
+    }
+
+    #message img {
+      margin-top: 15px;
+      width: 220px;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fireworks"></canvas>
+
+  <div class="container">
+    <h1>Do you like me? 💖</h1>
+    <div class="buttons">
+      <button id="yesBtn">Yes 💕</button>
+      <button id="noBtn">No 😏</button>
+    </div>
+    <div id="message">
+      <span id="typewriter"></span>
+      <br>
+      <img src="https://i.postimg.cc/yxDPMXhZ/IMG-20250903-214414.jpg" alt="Her Image">
+    </div>
+  </div>
+
+  <script>
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const message = document.getElementById('message');
+    const typewriter = document.getElementById('typewriter');
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    noBtn.addEventListener('mouseover', () => {
+      const buffer = 100;
+      const maxX = window.innerWidth - noBtn.offsetWidth - buffer;
+      const maxY = window.innerHeight - noBtn.offsetHeight - buffer;
+
+      let x = Math.random() * maxX + buffer / 2;
+      let y = Math.random() * maxY + buffer / 2;
+
+      const yesRect = yesBtn.getBoundingClientRect();
+      const distance = Math.hypot(x - yesRect.left, y - yesRect.top);
+      if (distance < 150) {
+        x = (x + 200) % maxX;
+        y = (y + 200) % maxY;
+      }
+
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
+    });
+
+    yesBtn.addEventListener('click', () => {
+      message.style.display = 'block';
+      yesBtn.style.display = 'none';
+      noBtn.style.display = 'none';
+      typeWriter("💘 Yay! I knew it... I Am the most special person to You Liked The Most! 💘");
+      launchFireworks();
+    });
+
+    function typeWriter(text, i = 0) {
+      if (i < text.length) {
+        typewriter.innerHTML += text.charAt(i);
+        setTimeout(() => typeWriter(text, i + 1), 50);
+      }
+    }
+
+    function launchFireworks() {
+      const particles = [];
+      const colors = ['#ff6699', '#ffcc00', '#66ffcc', '#ff66b2', '#ffffff'];
+
+      for (let i = 0; i < 100; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          radius: Math.random() * 3 + 2,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          angle: Math.random() * 2 * Math.PI,
+          speed: Math.random() * 5 + 2,
+          alpha: 1
+        });
+      }
+
+      const interval = setInterval(() => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.x += Math.cos(p.angle) * p.speed;
+          p.y += Math.sin(p.angle) * p.speed;
+          p.alpha -= 0.02;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${hexToRgb(p.color)},${p.alpha})`;
+          ctx.fill();
+        });
+      }, 30);
+
+      setTimeout(() => clearInterval(interval), 2000);
+    }
+
+    function hexToRgb(hex) {
+      const bigint = parseInt(hex.replace('#', ''), 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `${r},${g},${b}`;
+    }
+  </script>
+</body>
+</html>
